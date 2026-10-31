@@ -44,8 +44,8 @@ func ParseRepositoryURL(repoURL string) (*RepositoryInfo, error) {
 		owner = "root"
 		repository = pathParts[0]
 	} else {
-	    owner := pathParts[0]
-		repository := pathParts[len(pathParts)-1]
+		owner = pathParts[0]
+		repository = pathParts[len(pathParts)-1]
 	}
 
 
