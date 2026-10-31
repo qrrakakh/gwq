@@ -34,13 +34,20 @@ func ParseRepositoryURL(repoURL string) (*RepositoryInfo, error) {
 	}
 
 	// Extract path components
+	var owner string
+	var repository string
+
 	pathParts := strings.Split(strings.Trim(parsedURL.Path, "/"), "/")
-	if len(pathParts) < 2 {
+	if len(pathParts) < 1 {
 		return nil, fmt.Errorf("invalid repository path: %s", parsedURL.Path)
+	} else if len(pathParts) == 1 {
+		owner = "root"
+		repository = pathParts[0]
+	} else {
+	    owner := pathParts[0]
+		repository := pathParts[len(pathParts)-1]
 	}
 
-	owner := pathParts[0]
-	repository := pathParts[len(pathParts)-1]
 
 	// Remove .git suffix if present
 	repository = strings.TrimSuffix(repository, ".git")
