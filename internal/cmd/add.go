@@ -15,6 +15,7 @@ var (
 	addBranch      bool
 	addInteractive bool
 	addForce       bool
+	addMaySkipAdd  bool
 	addStay        bool
 	addExpires     string
 )
@@ -56,6 +57,7 @@ func init() {
 
 	addCmd.Flags().BoolVarP(&addBranch, "branch", "b", false, "Create new branch")
 	addCmd.Flags().BoolVarP(&addInteractive, "interactive", "i", false, "Select branch using fuzzy finder")
+	addCmd.Flags().BoolVarP(&addMaySkipAdd, "mayskipadd", "m", true, "Skip creating the worktree if the path already exist")
 	addCmd.Flags().BoolVarP(&addForce, "force", "f", false, "Overwrite existing directory")
 	addCmd.Flags().BoolVarP(&addStay, "stay", "s", false, "Stay in worktree directory after creation")
 	addCmd.Flags().StringVar(&addExpires, "expires", "", "Set expiration (e.g., 1d, 7d, 1h)")
@@ -115,9 +117,31 @@ func runAdd(cmd *cobra.Command, args []string) error {
 			expiresDuration = d
 		}
 
-		worktreePath, err := ctx.WorktreeManager.Add(branch, path, addBranch)
+		currentWorktreeList, err := ctx.WorktreeManager.List()
 		if err != nil {
 			return err
+		}
+
+		worktreePath, err := ctx.WorktreeManager.PreparePath(path, branch)
+		if err != nil {
+			return err
+		}
+		
+		skipWorktreeAdd := false
+		for _, wt := range currentWorktreeList {
+			if wt.Path == worktreePath {
+				skipWorktreeAdd = true
+				break
+			}
+		}
+
+		skipWorktreeAdd = skipWorktreeAdd && addMaySkipAdd
+
+		if !skipWorktreeAdd {
+			worktreePath, err = ctx.WorktreeManager.Add(branch, path, addBranch)
+			if err != nil {
+				return err
+			}
 		}
 
 		var expiresAt *time.Time

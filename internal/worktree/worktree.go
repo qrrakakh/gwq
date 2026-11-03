@@ -164,6 +164,10 @@ func (m *Manager) ValidateWorktreePath(path string) error {
 	return nil
 }
 
+func (m *Manager) PreparePath(customPath, branch string) (string, error) {
+	return m.preparePath(customPath, branch)
+}
+
 // preparePath resolves and prepares the worktree path, creating parent directories if needed.
 func (m *Manager) preparePath(customPath, branch string) (string, error) {
 	path := customPath
