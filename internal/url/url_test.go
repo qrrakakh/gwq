@@ -98,9 +98,11 @@ func TestParseRepositoryURL(t *testing.T) {
 			wantRepo:  "repo",
 		},
 		{
-			name:    "single path component is invalid",
-			input:   "https://github.com/user",
-			wantErr: true,
+			name:    "single path component is still valid",
+			input:   "https://gerrit.user.com/repo",
+			wantHost: "gerrit.user.com",
+			wantOwner: "root",
+			wantRepo: "repo",
 		},
 		{
 			name:    "no host",
